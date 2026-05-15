@@ -116,20 +116,35 @@ export const IncomingCallView = () => {
   let audio = null;
   let isSpeakerOn = true;
   
-  const ringtoneUrl = localStorage.getItem('echojoy_ringtone') || 'https://actions.google.com/sounds/v1/alarms/phone_ringing.ogg';
-  const ringtoneAudio = new Audio(ringtoneUrl);
-  ringtoneAudio.loop = true;
-  // Try to play ringtone immediately
-  ringtoneAudio.play().catch(e => console.log('Autoplay blocked:', e));
+  const ringtones = {
+    'default': 'https://actions.google.com/sounds/v1/alarms/phone_ringing.ogg',
+    'digital': 'https://actions.google.com/sounds/v1/alarms/digital_watch_alarm_long.ogg',
+    'bell': 'https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg',
+    'harp': 'https://actions.google.com/sounds/v1/water/water_drop.ogg', // Soft alternative
+    'space': 'https://actions.google.com/sounds/v1/science_fiction/sci_fi_door_open.ogg'
+  };
+  const settings = JSON.parse(localStorage.getItem('echojoy_settings') || '{}');
+  const ringtoneUrl = ringtones[settings.ringtone] || ringtones.default;
+  
+  // Use the globally unlocked player for iOS
+  window.globalRingtonePlayer.src = ringtoneUrl;
+  const playPromise = window.globalRingtonePlayer.play();
+  if (playPromise !== undefined) {
+    playPromise.catch(err => {
+      console.warn("Ringtone autoplay blocked by iOS. Visual ringing continues.", err);
+    });
+  }
+
+  // --- Actions ---
 
   declineBtn.addEventListener('click', () => {
-    ringtoneAudio.pause();
+    window.globalRingtonePlayer.pause();
     sessionStorage.removeItem('currentCallData');
     import('../main.js').then(module => module.navigateTo('/'));
   });
 
   acceptBtn.addEventListener('click', () => {
-    ringtoneAudio.pause();
+    window.globalRingtonePlayer.pause();
     if (!callData.audio_url) {
       alert("No audio found for this reminder.");
       return;
@@ -163,7 +178,7 @@ export const IncomingCallView = () => {
   });
 
   endCallBtn.addEventListener('click', () => {
-    ringtoneAudio.pause();
+    window.globalRingtonePlayer.pause();
     if (audio) {
       audio.pause();
     }
