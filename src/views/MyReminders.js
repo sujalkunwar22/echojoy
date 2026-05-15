@@ -20,7 +20,7 @@ export const MyRemindersView = () => {
     </header>
     
     <!-- Notification Banner -->
-    <div id="notification-banner" class="hidden mx-6 mt-24 mb-4 p-4 bg-primary-container text-on-primary-container rounded-2xl flex items-center justify-between shadow-lg animate-bounce-subtle">
+    <div id="notification-banner" class="hidden mx-6 mt-20 mb-4 p-4 bg-primary-container text-on-primary-container rounded-2xl flex items-center justify-between shadow-lg animate-bounce-subtle">
       <div class="flex items-center gap-3">
         <span class="material-symbols-outlined text-primary">notifications_active</span>
         <div>
@@ -32,7 +32,7 @@ export const MyRemindersView = () => {
     </div>
     
     <!-- Main Content -->
-    <main class="pt-2 px-6 max-w-2xl mx-auto">
+    <main id="main-content" class="pt-20 px-6 max-w-2xl mx-auto transition-all duration-300">
       <div class="mb-8">
         <h2 class="text-3xl font-black text-on-surface mb-2">Upcoming Voices</h2>
         <p class="text-on-surface-variant font-medium">Your schedule for a joyful day</p>
@@ -159,12 +159,17 @@ export const MyRemindersView = () => {
   // Handle Notification Permission
   const banner = container.querySelector('#notification-banner');
   const notifBtn = container.querySelector('#enable-notifs-btn');
+  const main = container.querySelector('#main-content');
   
   const checkNotifs = () => {
     if ('Notification' in window && Notification.permission !== 'granted' && Notification.permission !== 'denied') {
       banner.classList.remove('hidden');
+      main.classList.remove('pt-20');
+      main.classList.add('pt-4');
     } else {
       banner.classList.add('hidden');
+      main.classList.remove('pt-4');
+      main.classList.add('pt-20');
     }
   };
 
@@ -172,6 +177,8 @@ export const MyRemindersView = () => {
     const permission = await Notification.requestPermission();
     if (permission === 'granted') {
       banner.classList.add('hidden');
+      main.classList.remove('pt-4');
+      main.classList.add('pt-20');
     }
   });
 
