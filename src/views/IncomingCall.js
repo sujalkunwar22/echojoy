@@ -66,11 +66,37 @@ export const IncomingCallView = () => {
 
       <!-- Now Playing Section (Hidden Initially) -->
       <section class="w-full max-w-sm z-10 px-4 mt-8 hidden" id="playing-section">
-        <div class="flex flex-col items-center gap-4">
-          <button id="end-call-btn" class="h-20 w-20 rounded-full bg-error flex items-center justify-center text-white shadow-[0_8px_24px_rgba(229,62,62,0.3)] bouncy-hover bouncy-active">
-            <span class="material-symbols-outlined text-4xl" style="font-variation-settings: 'wght' 600;">call_end</span>
+        <div class="grid grid-cols-3 gap-6 place-items-center mb-10 w-full max-w-xs mx-auto">
+          <!-- Mute -->
+          <button class="flex flex-col items-center gap-2 opacity-50 cursor-not-allowed">
+             <div class="w-16 h-16 rounded-full bg-surface-container-highest flex items-center justify-center text-on-surface">
+               <span class="material-symbols-outlined text-2xl">mic_off</span>
+             </div>
+             <span class="text-xs font-medium text-on-surface">Mute</span>
           </button>
-          <span class="text-on-surface-variant font-bold text-sm tracking-wide">End Call</span>
+          <!-- Keypad -->
+          <button class="flex flex-col items-center gap-2 opacity-50 cursor-not-allowed">
+             <div class="w-16 h-16 rounded-full bg-surface-container-highest flex items-center justify-center text-on-surface">
+               <span class="material-symbols-outlined text-2xl">dialpad</span>
+             </div>
+             <span class="text-xs font-medium text-on-surface">Keypad</span>
+          </button>
+          <!-- Speaker -->
+          <button id="speaker-btn" class="flex flex-col items-center gap-2 bouncy-active">
+             <div class="w-16 h-16 rounded-full bg-white flex items-center justify-center text-primary shadow-md transition-colors" id="speaker-icon-bg">
+               <span class="material-symbols-outlined text-2xl" id="speaker-icon" style="font-variation-settings: 'FILL' 1;">volume_up</span>
+             </div>
+             <span class="text-xs font-medium text-on-surface">Speaker</span>
+          </button>
+        </div>
+
+        <div class="flex justify-center">
+          <div class="flex flex-col items-center gap-4">
+            <button id="end-call-btn" class="h-20 w-20 rounded-full bg-error flex items-center justify-center text-white shadow-[0_8px_24px_rgba(229,62,62,0.3)] bouncy-hover bouncy-active">
+              <span class="material-symbols-outlined text-4xl" style="font-variation-settings: 'wght' 600;">call_end</span>
+            </button>
+            <span class="text-on-surface-variant font-bold text-sm tracking-wide">End Call</span>
+          </div>
         </div>
       </section>
       
@@ -83,8 +109,12 @@ export const IncomingCallView = () => {
   const actionsSection = container.querySelector('#actions-section');
   const playingSection = container.querySelector('#playing-section');
   const pulseBg = container.querySelector('#pulse-bg');
+  const speakerBtn = container.querySelector('#speaker-btn');
+  const speakerIconBg = container.querySelector('#speaker-icon-bg');
+  const speakerIcon = container.querySelector('#speaker-icon');
   
   let audio = null;
+  let isSpeakerOn = true;
 
   declineBtn.addEventListener('click', () => {
     sessionStorage.removeItem('currentCallData');
@@ -119,6 +149,22 @@ export const IncomingCallView = () => {
     }
     sessionStorage.removeItem('currentCallData');
     import('../main.js').then(module => module.navigateTo('/'));
+  });
+
+  speakerBtn?.addEventListener('click', () => {
+    isSpeakerOn = !isSpeakerOn;
+    if (isSpeakerOn) {
+      speakerIconBg.classList.add('bg-white', 'text-primary', 'shadow-md');
+      speakerIconBg.classList.remove('bg-surface-container-highest', 'text-on-surface');
+      speakerIcon.textContent = 'volume_up';
+      if (audio) audio.volume = 1.0;
+    } else {
+      speakerIconBg.classList.remove('bg-white', 'text-primary', 'shadow-md');
+      speakerIconBg.classList.add('bg-surface-container-highest', 'text-on-surface');
+      speakerIcon.textContent = 'phone_in_talk';
+      // Simulate earpiece mode by drastically lowering the volume
+      if (audio) audio.volume = 0.15;
+    }
   });
 
   return container;
