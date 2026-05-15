@@ -109,6 +109,12 @@ document.addEventListener('click', e => {
 // Run initial render
 render();
 
+// Re-render when app regains focus to ensure fresh data
+window.addEventListener('focus', () => {
+  console.log("App focused, refreshing...");
+  render();
+});
+
 
 // --- REMINDER DAEMON ---
 const triggeredReminders = new Set(); // Prevent triggering the same reminder multiple times in a minute

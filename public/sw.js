@@ -1,4 +1,4 @@
-const CACHE_NAME = 'echojoy-cache-v2';
+const CACHE_NAME = 'echojoy-cache-v3';
 const urlsToCache = [
   '/',
   '/index.html',
@@ -29,18 +29,35 @@ self.addEventListener('activate', event => {
 });
 
 self.addEventListener('fetch', event => {
-  // Dynamic caching for Supabase audio and reminders
+  // Dynamic caching for Supabase
   if (event.request.url.includes('supabase.co')) {
-    event.respondWith(
-      caches.open('echojoy-dynamic').then(cache => {
-        return cache.match(event.request).then(response => {
-          return response || fetch(event.request).then(fetchRes => {
-            cache.put(event.request, fetchRes.clone());
-            return fetchRes;
+    const isStorage = event.request.url.includes('/storage/v1/');
+    
+    if (isStorage) {
+      // CACHE FIRST for Audio Files (they don't change)
+      event.respondWith(
+        caches.open('echojoy-audio').then(cache => {
+          return cache.match(event.request).then(response => {
+            return response || fetch(event.request).then(fetchRes => {
+              cache.put(event.request, fetchRes.clone());
+              return fetchRes;
+            });
           });
-        });
-      })
-    );
+        })
+      );
+    } else {
+      // NETWORK FIRST for API Data (Reminders list)
+      // This ensures you see deletions and changes immediately
+      event.respondWith(
+        fetch(event.request).then(response => {
+          const clonedRes = response.clone();
+          caches.open('echojoy-api').then(cache => cache.put(event.request, clonedRes));
+          return response;
+        }).catch(() => {
+          return caches.match(event.request);
+        })
+      );
+    }
     return;
   }
 
