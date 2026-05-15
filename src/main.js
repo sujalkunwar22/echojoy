@@ -10,6 +10,23 @@ import { SettingsView } from './views/Settings.js';
 import { supabase } from './lib/supabase.js';
 import { setupAvatarPicker } from './components/AvatarPicker.js';
 
+// Global Audio Player for iOS Safari Compatibility
+window.playAudioSafely = (url) => {
+  const audio = new Audio();
+  audio.src = url;
+  audio.crossOrigin = "anonymous";
+  audio.playsInline = true;
+  audio.load();
+  const playPromise = audio.play();
+  if (playPromise !== undefined) {
+    playPromise.catch(error => {
+      console.error("Audio playback error:", error);
+      alert("Playback failed. Ensure your iPhone's physical SILENT SWITCH on the side of the phone is OFF and volume is up! Error: " + error.name);
+    });
+  }
+  return audio;
+};
+
 const routes = {
   '/': MyRemindersView,
   '/record': RecordReminderView,

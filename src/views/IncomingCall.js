@@ -141,9 +141,20 @@ export const IncomingCallView = () => {
     pulseBg.classList.replace('animate-ping', 'animate-pulse');
     pulseBg.classList.add('scale-110');
 
-    // Play Audio
-    audio = new Audio(callData.audio_url);
-    audio.play();
+    // Play Audio with iOS Safari workarounds
+    audio = new Audio();
+    audio.src = callData.audio_url;
+    audio.crossOrigin = "anonymous";
+    audio.playsInline = true; // Crucial for iOS
+    audio.load();
+
+    const playPromise = audio.play();
+    if (playPromise !== undefined) {
+      playPromise.catch(error => {
+        console.error("Audio playback error:", error);
+        alert("Playback failed. Please ensure your iPhone's physical Silent switch is OFF and volume is up. Error: " + error.message);
+      });
+    }
 
     audio.onended = () => {
       sessionStorage.removeItem('currentCallData');

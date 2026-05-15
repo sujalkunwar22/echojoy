@@ -78,7 +78,7 @@ export const MyRemindersView = () => {
         return `
           <div class="bouncy-hover cursor-pointer bg-surface-container-lowest p-6 rounded-lg shadow-[0_8px_24px_rgba(224,64,160,0.12)] flex items-center gap-5 border-l-8 border-${color} relative overflow-hidden" onclick="window.location.href='/call'">
             <div class="absolute top-0 right-0 w-24 h-24 bg-${color}/5 rounded-full -mr-10 -mt-10 pointer-events-none"></div>
-            <button class="w-14 h-14 rounded-full bg-${color} text-on-${color} flex items-center justify-center shadow-[0_4px_16px_rgba(0,0,0,0.1)] hover:scale-110 active:scale-95 transition-all" onclick="event.stopPropagation(); const audio = new Audio('${reminder.audio_url}'); audio.play();">
+            <button class="w-14 h-14 rounded-full bg-${color} text-on-${color} flex items-center justify-center shadow-[0_4px_16px_rgba(0,0,0,0.1)] hover:scale-110 active:scale-95 transition-all" onclick="event.stopPropagation(); window.playAudioSafely('${reminder.audio_url}');">
               <span class="material-symbols-outlined text-3xl" style="font-variation-settings: 'FILL' 1;">play_arrow</span>
             </button>
             <div class="flex-1">
