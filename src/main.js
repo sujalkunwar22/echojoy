@@ -154,20 +154,36 @@ const checkReminders = async () => {
         
         // Handle Background vs Foreground
         if (document.visibilityState === 'hidden') {
-          // If in background, send notification
-          if (Notification.permission === 'granted' && swRegistration) {
-            swRegistration.showNotification('Incoming Call! 📞', {
-              body: 'Tap to answer your EchoJoy reminder',
-              icon: '/icons/icon-192x192.png',
-              badge: '/icons/icon-192x192.png',
-              tag: 'call-' + reminder.id,
-              requireInteraction: true,
-              vibrate: [200, 100, 200, 100, 200, 100, 200],
-            });
+          // 1. Play Ringtone immediately (if audio was unlocked)
+          // This is the best way to alert the user on iOS background
+          const settings = JSON.parse(localStorage.getItem('echojoy_settings') || '{}');
+          const ringtones = {
+            'default': 'https://assets.mixkit.co/active_storage/sfx/1358/1358-preview.mp3',
+            'digital': 'https://assets.mixkit.co/active_storage/sfx/1359/1359-preview.mp3',
+            'bell': 'https://assets.mixkit.co/active_storage/sfx/2358/2358-preview.mp3',
+            'harp': 'https://assets.mixkit.co/active_storage/sfx/2354/2354-preview.mp3',
+            'space': 'https://assets.mixkit.co/active_storage/sfx/1360/1360-preview.mp3'
+          };
+          window.globalRingtonePlayer.src = ringtones[settings.ringtone] || ringtones.default;
+          window.globalRingtonePlayer.play().catch(e => console.log("Background ringtone blocked:", e));
+
+          // 2. Try to send notification as fallback
+          if ('Notification' in window && Notification.permission === 'granted') {
+            const notifTitle = 'Incoming Call from ' + (reminder.caller_name || 'EchoJoy');
+            if (swRegistration && swRegistration.showNotification) {
+              swRegistration.showNotification(notifTitle, {
+                body: 'Tap to answer your voice reminder',
+                icon: '/icons/icon-192x192.png',
+                tag: 'call-' + reminder.id,
+                requireInteraction: true
+              });
+            } else {
+              new Notification(notifTitle);
+            }
           }
         }
         
-        // Always try to navigate (will show when app is opened)
+        // Always navigate (will be visible when user opens the app)
         navigateTo('/call');
         break;
       }

@@ -126,12 +126,11 @@ export const IncomingCallView = () => {
   const settings = JSON.parse(localStorage.getItem('echojoy_settings') || '{}');
   const ringtoneUrl = ringtones[settings.ringtone] || ringtones.default;
   
-  // Use the globally unlocked player for iOS
-  window.globalRingtonePlayer.src = ringtoneUrl;
-  const playPromise = window.globalRingtonePlayer.play();
-  if (playPromise !== undefined) {
-    playPromise.catch(err => {
-      console.warn("Ringtone autoplay blocked by iOS. Visual ringing continues.", err);
+  // If ringtone is not already playing, start it
+  if (window.globalRingtonePlayer.paused || !window.globalRingtonePlayer.src.includes(ringtoneUrl)) {
+    window.globalRingtonePlayer.src = ringtoneUrl;
+    window.globalRingtonePlayer.play().catch(e => {
+      console.error("Call view ringtone error:", e);
     });
   }
 
