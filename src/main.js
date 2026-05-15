@@ -6,6 +6,7 @@ import { HistoryView } from './views/History.js';
 import { DeleteConfirmView } from './views/DeleteConfirm.js';
 import { DeletedView } from './views/Deleted.js';
 import { SavedView } from './views/Saved.js';
+import { SettingsView } from './views/Settings.js';
 import { supabase } from './lib/supabase.js';
 import { setupAvatarPicker } from './components/AvatarPicker.js';
 
@@ -18,6 +19,7 @@ const routes = {
   '/delete-confirm': DeleteConfirmView,
   '/deleted': DeletedView,
   '/saved': SavedView,
+  '/settings': SettingsView,
 };
 
 const app = document.getElementById('app');

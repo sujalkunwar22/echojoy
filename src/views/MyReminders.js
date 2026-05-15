@@ -9,7 +9,7 @@ export const MyRemindersView = () => {
     <!-- Top App Bar -->
     <header class="bg-background dark:bg-surface-dim flex justify-between items-center w-full px-6 py-4 fixed top-0 z-50">
       <div class="flex items-center gap-4">
-        <button class="hover:scale-105 transition-transform duration-300 ease-out active:scale-95 transition-all duration-200">
+        <button class="hover:scale-105 transition-transform duration-300 ease-out active:scale-95 transition-all duration-200" onclick="import('../main.js').then(module => module.navigateTo('/settings'))">
           <span class="material-symbols-outlined text-primary dark:text-primary-fixed-dim">settings</span>
         </button>
         <h1 class="font-headline text-lg font-bold text-primary dark:text-primary-fixed-dim tracking-tight">EchoJoy</h1>

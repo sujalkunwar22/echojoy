@@ -115,13 +115,21 @@ export const IncomingCallView = () => {
   
   let audio = null;
   let isSpeakerOn = true;
+  
+  const ringtoneUrl = localStorage.getItem('echojoy_ringtone') || 'https://actions.google.com/sounds/v1/alarms/phone_ringing.ogg';
+  const ringtoneAudio = new Audio(ringtoneUrl);
+  ringtoneAudio.loop = true;
+  // Try to play ringtone immediately
+  ringtoneAudio.play().catch(e => console.log('Autoplay blocked:', e));
 
   declineBtn.addEventListener('click', () => {
+    ringtoneAudio.pause();
     sessionStorage.removeItem('currentCallData');
     import('../main.js').then(module => module.navigateTo('/'));
   });
 
   acceptBtn.addEventListener('click', () => {
+    ringtoneAudio.pause();
     if (!callData.audio_url) {
       alert("No audio found for this reminder.");
       return;
@@ -144,6 +152,7 @@ export const IncomingCallView = () => {
   });
 
   endCallBtn.addEventListener('click', () => {
+    ringtoneAudio.pause();
     if (audio) {
       audio.pause();
     }
