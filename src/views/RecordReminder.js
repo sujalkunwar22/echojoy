@@ -175,8 +175,10 @@ export const RecordReminderView = () => {
 
         mediaRecorder.addEventListener("stop", async () => {
           statusEl.textContent = 'Uploading...';
-          const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
-          const fileName = `audio_${Date.now()}.webm`;
+          const mimeType = mediaRecorder.mimeType || 'audio/mp4';
+          const audioBlob = new Blob(audioChunks, { type: mimeType });
+          const ext = mimeType.includes('mp4') ? 'mp4' : mimeType.includes('webm') ? 'webm' : 'ogg';
+          const fileName = `audio_${Date.now()}.${ext}`;
           
           try {
             // Ensure bucket exists in your supabase dashboard: 'audio-reminders'
