@@ -1,0 +1,17 @@
+{
+  "name": "EchoJoy",
+  "short_name": "EchoJoy",
+  "description": "Voice Reminders for a Joyful Day",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#fef7ff",
+  "theme_color": "#fef7ff",
+  "icons": [
+    {
+      "src": "https://lh3.googleusercontent.com/aida-public/AB6AXuBmZRP3rwhnaDLmusnpN9czlkXcpHwK-2hQcSGh3nZK_rpkhA5cAQOtS0NnaegNZoCqJgGpNQQFZWNFBxEYuQU9DZQTpCyCcslBUSvPg8SOzl5Mwn--gd6_MXV_Fj9UHjAtxeqhQK87hnIf8EwRYLpPmgOTiGD-9j-pJr_lpuMFRSg9gFADW2TJPTlaetONrnpUFL0QFzp5uBLuB5Ti6nFZsjNYiVU_dtYlkxZgcKuo3vAycaGkgN-9uZxT8oIhnW18NMOA5jtxtRQ",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
