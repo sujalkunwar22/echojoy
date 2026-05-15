@@ -25,6 +25,12 @@ export const RecordReminderView = () => {
         <span id="recording-status">Ready to Record</span>
       </div>
       
+      <!-- Laptop Warning -->
+      <div id="laptop-warning" class="hidden max-w-xs text-center p-3 bg-secondary-container text-on-secondary-container rounded-xl text-xs font-medium flex items-center gap-2">
+        <span class="material-symbols-outlined text-sm">info</span>
+        Recordings made on a computer may not play on iPhones. Use your phone for best results!
+      </div>
+      
       <!-- Central Record Button Section -->
       <div class="relative group">
         <!-- Outer Glow Rings -->
@@ -79,6 +85,12 @@ export const RecordReminderView = () => {
   const timeEl = container.querySelector('#recording-time');
   const waveformEl = container.querySelector('#waveform-container');
   const nextBtn = container.querySelector('#next-btn');
+  const laptopWarning = container.querySelector('#laptop-warning');
+
+  // Show warning if not on iOS
+  if (!/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+    laptopWarning.classList.remove('hidden');
+  }
   
   let isRecording = false;
   let timer;

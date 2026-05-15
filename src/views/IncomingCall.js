@@ -117,11 +117,11 @@ export const IncomingCallView = () => {
   let isSpeakerOn = true;
   
   const ringtones = {
-    'default': 'https://actions.google.com/sounds/v1/alarms/phone_ringing.ogg',
-    'digital': 'https://actions.google.com/sounds/v1/alarms/digital_watch_alarm_long.ogg',
-    'bell': 'https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg',
-    'harp': 'https://actions.google.com/sounds/v1/water/water_drop.ogg', // Soft alternative
-    'space': 'https://actions.google.com/sounds/v1/science_fiction/sci_fi_door_open.ogg'
+    'default': 'https://assets.mixkit.co/active_storage/sfx/1358/1358-preview.mp3', // Modern Ring
+    'digital': 'https://assets.mixkit.co/active_storage/sfx/1359/1359-preview.mp3', // Digital
+    'bell': 'https://assets.mixkit.co/active_storage/sfx/2358/2358-preview.mp3', // Classic Bell
+    'harp': 'https://assets.mixkit.co/active_storage/sfx/2354/2354-preview.mp3', // Soft Harp
+    'space': 'https://assets.mixkit.co/active_storage/sfx/1360/1360-preview.mp3'  // Sci-fi
   };
   const settings = JSON.parse(localStorage.getItem('echojoy_settings') || '{}');
   const ringtoneUrl = ringtones[settings.ringtone] || ringtones.default;
@@ -160,14 +160,23 @@ export const IncomingCallView = () => {
     audio = new Audio();
     audio.src = callData.audio_url;
     audio.crossOrigin = "anonymous";
-    audio.playsInline = true; // Crucial for iOS
+    audio.playsInline = true; 
+    
+    // Add to DOM (sometimes required for iOS background/PWA play)
+    audio.style.display = 'none';
+    document.body.appendChild(audio);
+    
     audio.load();
 
     const playPromise = audio.play();
     if (playPromise !== undefined) {
       playPromise.catch(error => {
         console.error("Audio playback error:", error);
-        alert("Playback failed. Please ensure your iPhone's physical Silent switch is OFF and volume is up. Error: " + error.message);
+        let msg = "Playback failed. Ensure your Silent switch is OFF.";
+        if (callData.audio_url.includes('.webm') && /iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+          msg = "This recording was made on a computer (WebM format) which your iPhone doesn't support. Please record a new one on your iPhone!";
+        }
+        alert(msg + "\n\nError: " + error.message);
       });
     }
 
