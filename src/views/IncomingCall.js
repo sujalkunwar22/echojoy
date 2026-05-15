@@ -66,27 +66,21 @@ export const IncomingCallView = () => {
 
       <!-- Now Playing Section (Hidden Initially) -->
       <section class="w-full max-w-sm z-10 px-4 mt-8 hidden" id="playing-section">
-        <div class="grid grid-cols-3 gap-6 place-items-center mb-10 w-full max-w-xs mx-auto">
+        <div class="flex justify-center gap-12 mb-10 w-full max-w-xs mx-auto">
           <!-- Mute -->
-          <button class="flex flex-col items-center gap-2 opacity-50 cursor-not-allowed">
-             <div class="w-16 h-16 rounded-full bg-surface-container-highest flex items-center justify-center text-on-surface">
-               <span class="material-symbols-outlined text-2xl">mic_off</span>
+          <button id="mute-btn" class="flex flex-col items-center gap-2 bouncy-active">
+             <div class="w-16 h-16 rounded-full bg-surface-container-highest flex items-center justify-center text-on-surface transition-colors" id="mute-icon-bg">
+               <span class="material-symbols-outlined text-2xl" id="mute-icon">mic</span>
              </div>
-             <span class="text-xs font-medium text-on-surface">Mute</span>
+             <span class="text-xs font-medium text-on-surface" id="mute-label">Mute</span>
           </button>
-          <!-- Keypad -->
-          <button class="flex flex-col items-center gap-2 opacity-50 cursor-not-allowed">
-             <div class="w-16 h-16 rounded-full bg-surface-container-highest flex items-center justify-center text-on-surface">
-               <span class="material-symbols-outlined text-2xl">dialpad</span>
-             </div>
-             <span class="text-xs font-medium text-on-surface">Keypad</span>
-          </button>
+          
           <!-- Speaker -->
           <button id="speaker-btn" class="flex flex-col items-center gap-2 bouncy-active">
              <div class="w-16 h-16 rounded-full bg-white flex items-center justify-center text-primary shadow-md transition-colors" id="speaker-icon-bg">
                <span class="material-symbols-outlined text-2xl" id="speaker-icon" style="font-variation-settings: 'FILL' 1;">volume_up</span>
              </div>
-             <span class="text-xs font-medium text-on-surface">Speaker</span>
+             <span class="text-xs font-medium text-on-surface" id="speaker-label">Speaker</span>
           </button>
         </div>
 
@@ -109,12 +103,18 @@ export const IncomingCallView = () => {
   const actionsSection = container.querySelector('#actions-section');
   const playingSection = container.querySelector('#playing-section');
   const pulseBg = container.querySelector('#pulse-bg');
+  const muteBtn = container.querySelector('#mute-btn');
+  const muteIconBg = container.querySelector('#mute-icon-bg');
+  const muteIcon = container.querySelector('#mute-icon');
+  const muteLabel = container.querySelector('#mute-label');
   const speakerBtn = container.querySelector('#speaker-btn');
   const speakerIconBg = container.querySelector('#speaker-icon-bg');
   const speakerIcon = container.querySelector('#speaker-icon');
+  const speakerLabel = container.querySelector('#speaker-label');
   
   let audio = null;
   let isSpeakerOn = true;
+  let isMuted = false;
   
   const ringtones = {
     'default': 'https://assets.mixkit.co/active_storage/sfx/1358/1358-preview.mp3', // Modern Ring
@@ -194,17 +194,36 @@ export const IncomingCallView = () => {
     import('../main.js').then(module => module.navigateTo('/'));
   });
 
-  speakerBtn?.addEventListener('click', () => {
+  muteBtn.addEventListener('click', () => {
+    isMuted = !isMuted;
+    if (audio) audio.muted = isMuted;
+    
+    if (isMuted) {
+      muteIconBg.classList.add('bg-white', 'text-primary', 'shadow-md');
+      muteIconBg.classList.remove('bg-surface-container-highest', 'text-on-surface');
+      muteIcon.textContent = 'mic_off';
+      muteLabel.textContent = 'Muted';
+    } else {
+      muteIconBg.classList.remove('bg-white', 'text-primary', 'shadow-md');
+      muteIconBg.classList.add('bg-surface-container-highest', 'text-on-surface');
+      muteIcon.textContent = 'mic';
+      muteLabel.textContent = 'Mute';
+    }
+  });
+
+  speakerBtn.addEventListener('click', () => {
     isSpeakerOn = !isSpeakerOn;
     if (isSpeakerOn) {
       speakerIconBg.classList.add('bg-white', 'text-primary', 'shadow-md');
       speakerIconBg.classList.remove('bg-surface-container-highest', 'text-on-surface');
       speakerIcon.textContent = 'volume_up';
+      speakerLabel.textContent = 'Speaker';
       if (audio) audio.volume = 1.0;
     } else {
       speakerIconBg.classList.remove('bg-white', 'text-primary', 'shadow-md');
       speakerIconBg.classList.add('bg-surface-container-highest', 'text-on-surface');
       speakerIcon.textContent = 'phone_in_talk';
+      speakerLabel.textContent = 'Earpiece';
       // Simulate earpiece mode by drastically lowering the volume
       if (audio) audio.volume = 0.15;
     }
