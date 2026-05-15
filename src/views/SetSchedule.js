@@ -80,19 +80,24 @@ export const SetScheduleView = () => {
         </div>
       </section>
       
-      <!-- Repeat Logic Bento -->
-      <section class="grid grid-cols-2 gap-4">
-        <div class="bg-tertiary-container/20 border-2 border-tertiary-fixed-dim rounded-lg p-5 flex flex-col gap-2 relative">
-          <span class="material-symbols-outlined text-tertiary" style="font-variation-settings: 'FILL' 1;">calendar_today</span>
-          <p class="font-bold text-on-tertiary-container">Date / Days</p>
-          <input id="days-input" type="text" class="text-xs w-full bg-transparent border-b border-tertiary-fixed-dim focus:outline-none focus:border-tertiary text-on-tertiary-fixed-variant" value="Every Monday, Friday" placeholder="e.g. Every Monday, Friday or 2024-05-20"/>
+      <!-- Day Picker -->
+      <section class="bg-surface-container rounded-lg p-6 flex flex-col gap-4 shadow-[0_8px_32px_rgba(0,0,0,0.05)]">
+        <h2 class="font-headline text-lg font-bold text-secondary text-center">Which days?</h2>
+        <div id="day-picker" class="flex flex-wrap justify-center gap-2">
+          ${['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map(day => `
+            <button data-day="${day}" class="day-chip w-11 h-11 rounded-full border-2 border-outline-variant text-[10px] font-black uppercase transition-all active:scale-90">
+              ${day}
+            </button>
+          `).join('')}
+          <button id="everyday-btn" class="px-5 h-11 rounded-full border-2 border-outline-variant text-[10px] font-black uppercase transition-all active:scale-90">
+            Everyday
+          </button>
         </div>
-        <div class="bg-secondary-container/20 border-2 border-secondary-fixed-dim rounded-lg p-5 flex flex-col gap-2 hover:scale-[1.02] transition-transform cursor-pointer">
-          <span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1;">volume_up</span>
-          <p class="font-bold text-on-secondary-container">Voice</p>
-          <p class="text-xs text-on-secondary-fixed-variant">My Voice</p>
-        </div>
+        <p id="days-summary" class="text-center text-xs font-medium text-on-surface-variant">Selected: Everyday</p>
       </section>
+      
+      <!-- Hidden Input for Logic -->
+      <input id="days-input" type="hidden" value="Every day"/>
     </main>
     
     <!-- Fixed Action Bar -->
@@ -140,13 +145,66 @@ export const SetScheduleView = () => {
   const reminderNameInput = container.querySelector('#reminder-name');
   const callerNameInput = container.querySelector('#caller-name');
   const daysInput = container.querySelector('#days-input');
+  const daysSummary = container.querySelector('#days-summary');
+  const dayChips = container.querySelectorAll('.day-chip');
+  const everydayBtn = container.querySelector('#everyday-btn');
+  
+  let selectedDays = []; 
+
+  const updateDaysUI = () => {
+    if (selectedDays.length === 0 || selectedDays.length === 7) {
+      daysSummary.textContent = "Selected: Everyday";
+      daysInput.value = "Every day";
+      everydayBtn.classList.add('bg-secondary', 'text-on-secondary', 'border-secondary');
+      dayChips.forEach(chip => {
+        chip.classList.remove('bg-primary', 'text-on-primary', 'border-primary');
+        chip.classList.add('border-outline-variant');
+      });
+    } else {
+      daysSummary.textContent = "Selected: " + selectedDays.join(', ');
+      daysInput.value = selectedDays.join(', ');
+      everydayBtn.classList.remove('bg-secondary', 'text-on-secondary', 'border-secondary');
+      dayChips.forEach(chip => {
+        if (selectedDays.includes(chip.dataset.day)) {
+          chip.classList.add('bg-primary', 'text-on-primary', 'border-primary');
+          chip.classList.remove('border-outline-variant');
+        } else {
+          chip.classList.remove('bg-primary', 'text-on-primary', 'border-primary');
+          chip.classList.add('border-outline-variant');
+        }
+      });
+    }
+  };
+
+  dayChips.forEach(chip => {
+    chip.addEventListener('click', () => {
+      const day = chip.dataset.day;
+      if (selectedDays.includes(day)) {
+        selectedDays = selectedDays.filter(d => d !== day);
+      } else {
+        selectedDays.push(day);
+      }
+      updateDaysUI();
+    });
+  });
+
+  everydayBtn.addEventListener('click', () => {
+    selectedDays = [];
+    updateDaysUI();
+  });
+
+  updateDaysUI(); // Initial state
   
   if (editId) {
     supabase.from('reminders').select('*').eq('id', editId).single().then(({ data, error }) => {
       if (!error && data) {
         reminderNameInput.value = data.title;
         callerNameInput.value = data.caller_name || data.title;
-        daysInput.value = data.days;
+        
+        if (data.days && data.days !== 'Every day') {
+          selectedDays = data.days.split(', ');
+          updateDaysUI();
+        }
         
         // Parse time: "08:30 AM"
         const [timePart, ampmPart] = data.time.split(' ');

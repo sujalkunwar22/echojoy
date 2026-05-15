@@ -45,18 +45,21 @@ window.playAudioSafely = (url) => {
 };
 
 // --- iOS Ringtone Autoplay Hack ---
-// iOS blocks audio.play() if not triggered by a direct click.
-// To make the ringtone work when the daemon triggers it, we keep an audio element "warm".
 window.globalRingtonePlayer = new Audio();
 window.globalRingtonePlayer.loop = true;
 window.globalRingtonePlayer.playsInline = true;
+window.globalRingtonePlayer.style.display = 'none';
+document.body.appendChild(window.globalRingtonePlayer);
 
 document.body.addEventListener('click', () => {
-  if (!window.globalRingtonePlayer.src) {
-    // Play a tiny silent WAV file to unlock the audio element on the first user interaction
-    window.globalRingtonePlayer.src = 'data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAAABkYXRhAgAAAAEA';
+  if (!window.globalRingtonePlayer.src || window.globalRingtonePlayer.src.startsWith('data:')) {
+    // Play a tiny silent WAV file to unlock the audio element
+    window.globalRingtonePlayer.src = 'https://assets.mixkit.co/active_storage/sfx/1358/1358-preview.mp3';
+    window.globalRingtonePlayer.volume = 0;
     window.globalRingtonePlayer.play().then(() => {
       window.globalRingtonePlayer.pause();
+      window.globalRingtonePlayer.volume = 1;
+      console.log("Audio unlocked successfully");
     }).catch(e => console.log("Audio unlock failed:", e));
   }
 }, { once: true });
