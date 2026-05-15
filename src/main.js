@@ -10,6 +10,23 @@ import { SettingsView } from './views/Settings.js';
 import { supabase } from './lib/supabase.js';
 import { setupAvatarPicker } from './components/AvatarPicker.js';
 
+// Notification Support
+let swRegistration = null;
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js').then(reg => {
+    swRegistration = reg;
+  });
+}
+
+const requestNotificationPermission = async () => {
+  if ('Notification' in window) {
+    const permission = await Notification.requestPermission();
+    if (permission === 'granted') {
+      console.log('Notification permission granted.');
+    }
+  }
+};
+
 // Global Audio Player for iOS Safari Compatibility
 window.playAudioSafely = (url) => {
   const audio = new Audio();
@@ -122,24 +139,39 @@ const checkReminders = async () => {
     const currentTimeString = formatCurrentTime();
 
     for (const reminder of reminders) {
-      // Check if time matches and we haven't triggered it yet
       if (reminder.time === currentTimeString && !triggeredReminders.has(reminder.id)) {
-        
-        // Mark as triggered so it doesn't loop
         triggeredReminders.add(reminder.id);
-        
-        // Pass data via sessionStorage to the call view
         sessionStorage.setItem('currentCallData', JSON.stringify(reminder));
         
-        // Route to the incoming call screen!
+        // Handle Background vs Foreground
+        if (document.visibilityState === 'hidden') {
+          // If in background, send notification
+          if (Notification.permission === 'granted' && swRegistration) {
+            swRegistration.showNotification('Incoming Call! 📞', {
+              body: 'Tap to answer your EchoJoy reminder',
+              icon: '/icons/icon-192x192.png',
+              badge: '/icons/icon-192x192.png',
+              tag: 'call-' + reminder.id,
+              requireInteraction: true,
+              vibrate: [200, 100, 200, 100, 200, 100, 200],
+            });
+          }
+        }
+        
+        // Always try to navigate (will show when app is opened)
         navigateTo('/call');
-        break; // Only trigger one at a time
+        break;
       }
     }
   } catch (err) {
     console.error("Daemon error checking reminders:", err);
   }
 };
+
+// Auto-request permission on first boot
+document.addEventListener('click', () => {
+  requestNotificationPermission();
+}, { once: true });
 
 // Check every 15 seconds
 setInterval(checkReminders, 15000);

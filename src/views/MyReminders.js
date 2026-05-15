@@ -19,8 +19,20 @@ export const MyRemindersView = () => {
       </div>
     </header>
     
+    <!-- Notification Banner -->
+    <div id="notification-banner" class="hidden mx-6 mt-24 mb-4 p-4 bg-primary-container text-on-primary-container rounded-2xl flex items-center justify-between shadow-lg animate-bounce-subtle">
+      <div class="flex items-center gap-3">
+        <span class="material-symbols-outlined text-primary">notifications_active</span>
+        <div>
+          <p class="font-bold text-sm">Enable Call Notifications</p>
+          <p class="text-xs opacity-80">Get alerted even when app is minimized</p>
+        </div>
+      </div>
+      <button id="enable-notifs-btn" class="bg-primary text-on-primary px-4 py-2 rounded-full text-xs font-bold shadow-md active:scale-95 transition-all">Enable</button>
+    </div>
+    
     <!-- Main Content -->
-    <main class="pt-24 px-6 max-w-2xl mx-auto">
+    <main class="pt-2 px-6 max-w-2xl mx-auto">
       <div class="mb-8">
         <h2 class="text-3xl font-black text-on-surface mb-2">Upcoming Voices</h2>
         <p class="text-on-surface-variant font-medium">Your schedule for a joyful day</p>
@@ -144,6 +156,26 @@ export const MyRemindersView = () => {
     }
   };
 
+  // Handle Notification Permission
+  const banner = container.querySelector('#notification-banner');
+  const notifBtn = container.querySelector('#enable-notifs-btn');
+  
+  const checkNotifs = () => {
+    if ('Notification' in window && Notification.permission !== 'granted' && Notification.permission !== 'denied') {
+      banner.classList.remove('hidden');
+    } else {
+      banner.classList.add('hidden');
+    }
+  };
+
+  notifBtn.addEventListener('click', async () => {
+    const permission = await Notification.requestPermission();
+    if (permission === 'granted') {
+      banner.classList.add('hidden');
+    }
+  });
+
+  checkNotifs();
   loadReminders();
 
   return container;
